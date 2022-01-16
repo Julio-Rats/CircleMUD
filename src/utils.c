@@ -197,11 +197,14 @@ void log_death_trap(struct char_data *ch)
 /*
  * New variable argument log() function.  Works the same as the old for
  * previously written code but is very nice for new code.
+ * 
+ * Comment lines by Julio, new type output date: dd/mm/YYYY - HH:MM:SS
  */
 void basic_mud_vlog(const char *format, va_list args)
 {
+  char buffer[26];
   time_t ct = time(0);
-  char *time_s = asctime(localtime(&ct));
+  /* char *time_s = asctime(localtime(&ct)); */
 
   if (logfile == NULL) {
     puts("SYSERR: Using log() before stream was initialized!");
@@ -211,9 +214,11 @@ void basic_mud_vlog(const char *format, va_list args)
   if (format == NULL)
     format = "SYSERR: log() received a NULL format.";
 
-  time_s[strlen(time_s) - 1] = '\0';
+  /* time_s[strlen(time_s) - 1] = '\0'; */
+  /* fprintf(logfile, "%-15.15s :: ", time_s + 4); */
+  strftime(buffer, 26, "%d/%m/%Y - %H:%M:%S", localtime(&ct));
+  fprintf(logfile, "%s :: ", buffer);
 
-  fprintf(logfile, "%-15.15s :: ", time_s + 4);
   vfprintf(logfile, format, args);
   fputc('\n', logfile);
   fflush(logfile);
