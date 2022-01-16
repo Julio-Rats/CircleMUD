@@ -37,6 +37,9 @@ PORT=4000
 # Default flags to pass to the MUD server (see admin.txt for a description
 # of all flags).
 FLAGS='-q'
+# true or false to automatic restart after shutdown mud.
+# very used to restart within the game, when the server is on another pc
+AUTORESTART=true
 
 #############################################################################
 
@@ -71,22 +74,30 @@ while ( : ) do
   mv syslog       log/syslog.6
   touch syslog
 
-  if [ -r .killscript ]; then
-    DATE=`date`;
-    echo "autoscript killed $DATE"  >> syslog
-    rm .killscript
-    exit
-  fi
+  if $AUTORESTART; then
 
-  if [ ! -r .fastboot ]; then
-    sleep 60
+    if [ -r .killscript ]; then
+      DATE=`date`;
+      echo "autoscript killed $DATE"  >> syslog
+      rm .killscript
+      exit
+    fi
+
+    if [ ! -r .fastboot ]; then
+      sleep 60
+    else
+      rm .fastboot
+      sleep 5
+    fi
+
+    while [ -r pause ]; do
+      sleep 60
+    done
+
   else
-    rm .fastboot
-    sleep 5
-  fi
 
-  while [ -r pause ]; do
-    sleep 60
-  done
+    exit
+
+  fi
 
 done
