@@ -43,7 +43,8 @@ AUTORESTART=true
 
 #############################################################################
 
-while ( : ) do
+CONTROL=true
+while ( $CONTROL ) do
 
   DATE=`date`
   echo "autorun starting game $DATE" >> syslog
@@ -74,30 +75,23 @@ while ( : ) do
   mv syslog       log/syslog.6
   touch syslog
 
-  if $AUTORESTART; then
-
-    if [ -r .killscript ]; then
-      DATE=`date`;
-      echo "autoscript killed $DATE"  >> syslog
-      rm .killscript
-      exit
-    fi
-
-    if [ ! -r .fastboot ]; then
-      sleep 60
-    else
-      rm .fastboot
-      sleep 5
-    fi
-
-    while [ -r pause ]; do
-      sleep 60
-    done
-
-  else
-
+  if [ -r .killscript ]; then
+    DATE=`date`;
+    echo "autoscript killed $DATE"  >> log/autokilled
+    rm .killscript
     exit
-
   fi
 
+  if [ ! -r .fastboot ]; then
+    sleep 60
+  else
+    rm .fastboot
+    sleep 5
+  fi
+
+  while [ -r pause ]; do
+    sleep 10
+  done
+
+   CONTROL=$AUTORESTART
 done
